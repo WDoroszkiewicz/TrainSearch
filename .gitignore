@@ -3,3 +3,6 @@
 ################################################################################
 
 /Domain/obj/Debug
+/Persistence/obj/Debug
+/Presentation/obj/Debug
+/.vs/TrainSearch/v15

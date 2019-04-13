@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace Domain
 {
-    public class Class1
+    public class ConnectionPeeker
     {
+        const string timeParameter = "REQ0JourneyTime";
+
     }
 }

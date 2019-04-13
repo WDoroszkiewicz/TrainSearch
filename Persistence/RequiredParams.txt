@@ -37,7 +37,6 @@ REQ0HafasAttrExc=&
 REQ0JourneyStopsS0G=5100069&
 REQ0JourneyStopsZ0G=&
 REQ0JourneyDate=15.04.19&
-REQ0JourneyTime=08:00&
 time=08:00&
 date=15.04.19&
 dateStart=15.04.19&
