@@ -44,5 +44,11 @@
     <Compile Include="ConnectionPeeker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Persistence\Persistence.csproj">
+      <Project>{93f9679c-99a7-4ac3-8b48-e0c181c27dd7}</Project>
+      <Name>Persistence</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
