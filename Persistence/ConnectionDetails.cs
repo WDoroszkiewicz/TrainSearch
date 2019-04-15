@@ -11,7 +11,7 @@ namespace Persistence
     {
         public static string GetInitialDetails()
         {
-            string path = "RequiredParams.txt";
+            string path = @"D:\_DEV\C#\MVC fundamentals\TrainSearch\Persistence\RequiredParams.txt";
             string details = "";
             try
             {
@@ -20,7 +20,7 @@ namespace Persistence
                     string line;
                     while ((line = streamReader.ReadLine()) != null)
                     {
-                        details += details != "" || details.EndsWith("&") ? line : $"&{line}";
+                        details += details == "" || details.EndsWith("&") ? line : $"&{line}";
                     }
                 }
 

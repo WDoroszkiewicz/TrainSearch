@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Persistence;
+using System.Net;
+using System.Xml;
+using HtmlAgilityPack;
 
 namespace Domain
 {
@@ -23,6 +26,47 @@ namespace Domain
         {
             connectionString = initialQuery = ConnectionDetails.GetInitialDetails();
         }
+        public string RunQuery()
+        {
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    string htmlCode = client.DownloadString(connectionString);
+                    string parsedResult = parseHtmlResults(htmlCode);
+                    return parsedResult;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Error when quering PKP page {e.StackTrace}");
+                }
+
+            }
+        }
+
+        private string parseHtmlResults(string htmlCode)
+        {
+            try
+            {
+                //<td data-value="19041423:58" />
+                string result = $"Result of parsing: {Environment.NewLine}";
+                var htmlDocument = new HtmlDocument();
+                htmlDocument.LoadHtml(htmlCode);
+                var selectedNodes = htmlDocument.DocumentNode.SelectNodes("//td[@data-value]");
+                foreach (var node in selectedNodes)
+                {
+                    result += $"{node.Attributes["data-value"].Value} {Environment.NewLine}";
+                }
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error when parsing result of HTML query {Environment.NewLine}{e.StackTrace}");
+            }
+
+
+        }
+
         public void ToWroclawGlowny(DateTime dateTime)
         {
             connectionString = initialQuery;
@@ -49,7 +93,7 @@ namespace Domain
         }
         public void setDateTime(DateTime dateTime)
         {
-            string formattedYear = dateTime.Year.ToString()[2] +""+ dateTime.Year.ToString()[3];
+            string formattedYear = dateTime.Year.ToString()[2] + "" + dateTime.Year.ToString()[3];
             addParameter(parameterDate, $"{dateTime.Day}.{dateTime.Month}.{formattedYear}");
             addParameter(parameterTime, $"{dateTime.Hour}:{dateTime.Minute}");
         }
