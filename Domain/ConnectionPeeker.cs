@@ -5,13 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using Persistence;
 using System.Net;
-using System.Xml;
 using HtmlAgilityPack;
+using Common;
 
 namespace Domain
 {
     public class ConnectionPeeker
     {
+        public enum Routes
+        {
+            GlownyToMuchobor,
+            MuchoborToGlowny
+        }
         const string parameterFromStation = "REQ0JourneyStopsS0G";
         const string parameterToStation = "REQ0JourneyStopsZ0G";
         const string parameterDate = "date"; //dd.mm.yy 
@@ -26,14 +31,29 @@ namespace Domain
         {
             connectionString = initialQuery = ConnectionDetails.GetInitialDetails();
         }
-        public string RunQuery()
+        public List<Time> GetTimes(Routes route, DateTime dateTime)
+        {
+            switch (route)
+            {
+                case Routes.GlownyToMuchobor:
+                    ToWroclawMuchobor(dateTime);
+                    break;
+                case Routes.MuchoborToGlowny:
+                    ToWroclawGlowny(dateTime);
+                    break;
+                default:
+                    break;
+            }
+            return runHtmlQuery();
+        }
+        private List<Time> runHtmlQuery()
         {
             using (WebClient client = new WebClient())
             {
                 try
                 {
                     string htmlCode = client.DownloadString(connectionString);
-                    string parsedResult = parseHtmlResults(htmlCode);
+                    List<Time> parsedResult = parseHtmlResults(htmlCode);
                     return parsedResult;
                 }
                 catch (Exception e)
@@ -44,27 +64,44 @@ namespace Domain
             }
         }
 
-        private string parseHtmlResults(string htmlCode)
+        private List<Time> parseHtmlResults(string htmlCode)
         {
             try
             {
                 //<td data-value="19041423:58" />
-                string result = $"Result of parsing: {Environment.NewLine}";
+                List<Time> times = new List<Time>();
                 var htmlDocument = new HtmlDocument();
                 htmlDocument.LoadHtml(htmlCode);
                 var selectedNodes = htmlDocument.DocumentNode.SelectNodes("//td[@data-value]");
                 foreach (var node in selectedNodes)
                 {
-                    result += $"{node.Attributes["data-value"].Value} {Environment.NewLine}";
+                    string dateTime = node.Attributes["data-value"].Value;
+                    if (tryFindTime(dateTime, out Time time))
+                    {
+                        times.Add(time);
+                    }
                 }
-                return result;
+                return times;
             }
             catch (Exception e)
             {
                 throw new Exception($"Error when parsing result of HTML query {Environment.NewLine}{e.StackTrace}");
             }
-
-
+        }
+        public bool tryFindTime(string time, out Time parsedTime)
+        {
+            if (time != null && time.Trim().Length == 11)
+            {
+                var potentialDate = time.Substring(6, 5);
+                var hourAndMinutes = potentialDate.Split(':');
+                if (hourAndMinutes.Length == 2)
+                {
+                    parsedTime = new Time(int.Parse(hourAndMinutes[0]), int.Parse(hourAndMinutes[1]));
+                    return true;
+                }
+            }
+            parsedTime = new Time();
+            return false;
         }
 
         public void ToWroclawGlowny(DateTime dateTime)

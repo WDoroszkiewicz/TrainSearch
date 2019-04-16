@@ -11,10 +11,14 @@ namespace Presentation
     {
         static void Main(string[] args)
         {
-            var connectionPeeker = new ConnectionPeeker();
-            connectionPeeker.ToWroclawGlowny(DateTime.Today);
-            var result = connectionPeeker.RunQuery();
-            Console.WriteLine(result);
+            var now = DateTime.Now;
+            var start = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
+
+            for (int i = 0; i < 24; i++)
+            {
+                Console.WriteLine(start);
+                start = start.AddHours(1);
+            }
             Console.ReadLine();
         }
     }

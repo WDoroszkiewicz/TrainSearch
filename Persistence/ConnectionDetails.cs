@@ -11,7 +11,8 @@ namespace Persistence
     {
         public static string GetInitialDetails()
         {
-            string path = @"D:\_DEV\C#\MVC fundamentals\TrainSearch\Persistence\RequiredParams.txt";
+            //string path = @"D:\_DEV\C#\MVC fundamentals\TrainSearch\Persistence\RequiredParams.txt";
+            string path = @"C:\Users\wdoroszkiewicz\Source\Repos\WDoroszkiewicz\TrainSearch\Persistence\RequiredParams.txt";
             string details = "";
             try
             {
