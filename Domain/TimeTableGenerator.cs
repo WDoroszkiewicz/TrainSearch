@@ -12,7 +12,11 @@ namespace Domain
         {
             var now = new DateTime();
             var start = new DateTime(now.Year, now.Month, now.Day, 1, 0, 0);
-            //iterate
+
+            for (int i = 0; i < 23; i++)
+            {
+
+            }
         }
     }
 }
