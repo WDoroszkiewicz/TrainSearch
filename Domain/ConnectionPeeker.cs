@@ -10,6 +10,11 @@ using HtmlAgilityPack;
 
 namespace Domain
 {
+    public enum Station
+    {
+        WroclawMuchobor = 5104130,
+        WroclawGlowny = 5100069
+    }
     public class ConnectionPeeker
     {
         const string parameterFromStation = "REQ0JourneyStopsS0G";
@@ -19,21 +24,23 @@ namespace Domain
         const string wroclawMuchoborId = "5104130";
         const string wroclawGlownyId = "5100069";
 
-        private string connectionString = "";
-        private string initialQuery = "";
+        private string ConnectionString = "";
+        private string InitialQuery = "";
+        private Station FromStation;
+        private Station ToStation;
 
         public ConnectionPeeker()
         {
-            connectionString = initialQuery = ConnectionDetails.GetInitialDetails();
+            ConnectionString = InitialQuery = ConnectionDetails.GetInitialDetails();
         }
-        public string RunQuery()
+        public List<TrainConnection> RunQuery()
         {
             using (WebClient client = new WebClient())
             {
                 try
                 {
-                    string htmlCode = client.DownloadString(connectionString);
-                    string parsedResult = parseHtmlResults(htmlCode);
+                    string htmlCode = client.DownloadString(ConnectionString);
+                    var parsedResult = parseHtmlResults(htmlCode);
                     return parsedResult;
                 }
                 catch (Exception e)
@@ -44,18 +51,18 @@ namespace Domain
             }
         }
 
-        private string parseHtmlResults(string htmlCode)
+        private List<TrainConnection> parseHtmlResults(string htmlCode)
         {
             try
             {
                 //<td data-value="19041423:58" />
-                string result = $"Result of parsing: {Environment.NewLine}";
+                List<TrainConnection> result = new List<TrainConnection>();                
                 var htmlDocument = new HtmlDocument();
                 htmlDocument.LoadHtml(htmlCode);
                 var selectedNodes = htmlDocument.DocumentNode.SelectNodes("//td[@data-value]");
                 foreach (var node in selectedNodes)
                 {
-                    result += $"{node.Attributes["data-value"].Value} {Environment.NewLine}";
+                    result.Add(new TrainConnection(FromStation, ToStation, node.Attributes["data-value"].Value));
                 }
                 return result;
             }
@@ -69,27 +76,29 @@ namespace Domain
 
         public void ToWroclawGlowny(DateTime dateTime)
         {
-            connectionString = initialQuery;
-            setFromStation(wroclawMuchoborId);
-            setTostation(wroclawGlownyId);
+            ConnectionString = InitialQuery;
+            setFromStation(Station.WroclawMuchobor);
+            setTostation(Station.WroclawGlowny);
             setDateTime(dateTime);
         }
 
         public void ToWroclawMuchobor(DateTime dateTime)
         {
-            connectionString = initialQuery;
-            setFromStation(wroclawGlownyId);
-            setTostation(wroclawMuchoborId);
+            ConnectionString = InitialQuery;
+            setFromStation(Station.WroclawGlowny);
+            setTostation(Station.WroclawMuchobor);
             setDateTime(dateTime);
         }
 
-        public void setFromStation(string stationId)
+        public void setFromStation(Station stationId)
         {
-            addParameter(parameterFromStation, stationId);
+            addParameter(parameterFromStation, (int) stationId);
+            FromStation = stationId;
         }
-        public void setTostation(string stationId)
+        public void setTostation(Station stationId)
         {
-            addParameter(parameterToStation, stationId);
+            addParameter(parameterToStation, (int) stationId);
+            ToStation = stationId;
         }
         public void setDateTime(DateTime dateTime)
         {
@@ -100,15 +109,19 @@ namespace Domain
 
         void addParameter(string parameterName, string parameterBody)
         {
-            if (connectionString == "")
+            if (ConnectionString == "")
             {
                 throw new Exception("Please fill initial connection string first !");
             }
-            if (!connectionString.EndsWith("&"))
+            if (!ConnectionString.EndsWith("&"))
             {
-                connectionString += "&";
+                ConnectionString += "&";
             }
-            connectionString += $"{parameterName}={parameterBody}";
+            ConnectionString += $"{parameterName}={parameterBody}";
+        }
+        void addParameter(string parameterName, int parameterBody)
+        {
+            addParameter(parameterName, parameterBody.ToString());
         }
     }
 }

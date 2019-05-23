@@ -47,6 +47,7 @@
     <Compile Include="ConnectionPeeker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimeTableGenerator.cs" />
+    <Compile Include="TrainConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Persistence\Persistence.csproj">

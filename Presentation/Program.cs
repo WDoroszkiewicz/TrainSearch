@@ -14,7 +14,10 @@ namespace Presentation
             var connectionPeeker = new ConnectionPeeker();
             connectionPeeker.ToWroclawGlowny(DateTime.Today);
             var result = connectionPeeker.RunQuery();
-            Console.WriteLine(result);
+            foreach (var item in result)
+            {
+                Console.WriteLine(item.ToString());
+            }
             Console.ReadLine();
         }
     }
